@@ -1,0 +1,112 @@
+library: mhowland@dirac5.calpoly.edu:/nfsbigdata2/eagonlab/Ligand_Libraries/2020_Clean_Drug_Like/
+processed: mhowland@dirac5.calpoly.edu:/nfsbigdata2/mhowland/scratch/
+local_workspace: /vm
+archive_prefix: Results_
+summary_prefix: Summary_
+
+docking: idock
+idock_executable_path: config/idock
+idock_conf_file: idock.conf
+
+batches: ['p01', 'p02']
+
+
+python: python3.4
+
+mpiexec_path: /usr/lib64/openmpi/bin/mpiexec
+mpi_args:
+    - --mca plm_rsh_no_tree_spawn 1
+    - --mca btl_tcp_if_include ens6f0 # required for the mpac lab
+#    - --hostfile config/mpac_hostfile.txt
+#    - --map-by node
+    - --bind-to none
+
+
+hosts:
+    -
+        hostname: 127x05.csc.calpoly.edu
+        slots: 3
+
+    -
+        hostname: 127x03.csc.calpoly.edu
+        slots: 3
+    -
+        hostname: 127x07.csc.calpoly.edu
+        slots: 3
+#    -
+#         hostname: 127x08.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x10.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x11.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x12.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x13.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x14.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x17.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x19.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x22.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x23.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x25.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x26.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x27.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x30.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x31.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x32.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x33.csc.calpoly.edu
+#         slots: 3
+#    -
+#         hostname: 127x35.csc.calpoly.edu
+#         slots: 3
+
+
+# 127x03.csc.calpoly.edu slots=3 max-slots=3
+# 127x05.csc.calpoly.edu slots=3 max-slots=3
+# 127x07.csc.calpoly.edu slots=3 max-slots=3
+# 127x08.csc.calpoly.edu slots=3 max-slots=3
+# 127x10.csc.calpoly.edu slots=3 max-slots=3
+# 127x11.csc.calpoly.edu slots=3 max-slots=3
+# 127x12.csc.calpoly.edu slots=3 max-slots=3
+# 127x13.csc.calpoly.edu slots=3 max-slots=3
+# 127x14.csc.calpoly.edu slots=3 max-slots=3
+# 127x17.csc.calpoly.edu slots=3 max-slots=3
+# 127x19.csc.calpoly.edu slots=3 max-slots=3
+# 127x22.csc.calpoly.edu slots=3 max-slots=3
+# 127x23.csc.calpoly.edu slots=3 max-slots=3
+# 127x25.csc.calpoly.edu slots=3 max-slots=3
+# 127x26.csc.calpoly.edu slots=3 max-slots=3
+# 127x27.csc.calpoly.edu slots=3 max-slots=3
+# 127x30.csc.calpoly.edu slots=3 max-slots=3
+# 127x31.csc.calpoly.edu slots=3 max-slots=3
+# 127x32.csc.calpoly.edu slots=3 max-slots=3
+# 127x33.csc.calpoly.edu slots=3 max-slots=3
+# 127x35.csc.calpoly.edu slots=3 max-slots=3
