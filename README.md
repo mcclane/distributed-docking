@@ -1,7 +1,7 @@
 # distributed-docking
-Two components: mpi launcher and the actual mpi script. The mpi launcher should only actually launch the mpi process. The mpi head node will then take care of downloading and uploading ligand batches. This is in contrast to the previous architecture, in which mpi processes were launched willy nilly and responsibilities were not clearly delegated.
+Will run idock, smina ligands in parallel on a cluster with openmpi installed.
 
-# OpenMPI launcher:
+# launcher:
 - constructs the mpiexec command
 - makes sure the head node stays the same
     + read in the hostfile and make the first line the host.
@@ -13,7 +13,7 @@ Two components: mpi launcher and the actual mpi script. The mpi launcher should 
     + any command line arguments for mpiexec
     + path to configuration file for the actual master and worker processes
 
-# OpenMPI process:
+# distributor:
 - master process rsyncs next ligand batch over, unzips ligands, diffs results and ligand directories on master local directory - need to make sure master node can be specified (so is kept the same all the time)
 - while there are still ligands to be run, master process distributes lists of ligand filenames to run to the workers
 - when a worker receives a list of ligands to be run:
