@@ -1,14 +1,16 @@
 library: mhowland@dirac5.calpoly.edu:/nfsbigdata2/eagonlab/Ligand_Libraries/2020_Clean_Drug_Like/
 processed: mhowland@dirac5.calpoly.edu:/nfsbigdata2/mhowland/scratch/
-local_workspace: /vm
+
 archive_prefix: Results_
 summary_prefix: Summary_
 
 docking: idock
-idock_executable_path: config/idock
-idock_conf_file: idock.conf
+# expects executable, idock.conf, and receptor pdbqt to be in this folder
+config_folder_path: dirac5.calpoly.edu:/nfsbigdata2/mhowland/example_config/
 
 batches: ['p01', 'p02']
+
+chunk_size: 5
 
 
 python: python3.4
@@ -22,6 +24,7 @@ mpi_args:
     - --bind-to none
 
 
+local_workspace: /vm # maybe make this host specific
 hosts:
     -
         hostname: 127x05.csc.calpoly.edu
