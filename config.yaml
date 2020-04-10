@@ -7,6 +7,7 @@ summary_prefix: Summary_
 docking: idock
 # expects executable, idock.conf, and receptor pdbqt to be in this folder
 config_folder_path: dirac5.calpoly.edu:/nfsbigdata2/mhowland/example_config/
+receptor: 6y2f_DOCK.pdbqt
 
 batches: ['p01', 'p02']
 
@@ -28,14 +29,14 @@ local_workspace: /vm # maybe make this host specific
 hosts:
     -
         hostname: 127x05.csc.calpoly.edu
-        slots: 3
+        slots: 2
 
-    -
-        hostname: 127x03.csc.calpoly.edu
-        slots: 3
-    -
-        hostname: 127x07.csc.calpoly.edu
-        slots: 3
+    # -
+    #     hostname: 127x03.csc.calpoly.edu
+    #     slots: 3
+    # -
+    #     hostname: 127x07.csc.calpoly.edu
+    #     slots: 3
 #    -
 #         hostname: 127x08.csc.calpoly.edu
 #         slots: 3
