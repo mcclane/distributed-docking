@@ -110,7 +110,8 @@ class Master:
             if received['finished_chunk']:
                 print("retrieving chunk from {}".format(received['results_dir']))
                 self.retrieve_chunk_from_worker(received['results_dir'])
-            MPI.COMM_WORLD.send({'wait_for_work', dest=status.received})
+            MPI.COMM_WORLD.send({'standby'}, dest=status.Get_source())
+
 
         print("done distributing")
 

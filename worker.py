@@ -81,11 +81,11 @@ class Worker:
             'results_dir': "{}:{}".format(self.hostname, self.results_dir),
             'finished_chunk': False
         }
-        MPI.COMM_WORLD.send(request_work, dest=0)
 
         have_config = False
 
         while True:
+            MPI.COMM_WORLD.send(request_work, dest=0)
             received = MPI.COMM_WORLD.recv(source=0)
             if 'chunk_sent' in received:
                 # print("worker {} received {} ligands".format(rank, len(received['ligands'])))
@@ -114,9 +114,8 @@ class Worker:
 
                 os.system("rm -rf {0} && mkdir {0}".format(self.ligand_dir))
                 request_work['finished_chunk'] = True
-                MPI.COMM_WORLD.send(request_work, dest=0)
                 # The master will retrieve the files and put more files into the directory
-            else if 'wait_for_work' in received:
+            elif 'standby' in received:
                 continue
             else:
                 break
