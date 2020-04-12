@@ -12,6 +12,8 @@ class idock:
         self.config = config
         self.receptor = receptor
         self.rank = rank
+        self.zinc_re = re.compile("REMARK\s+Name\s*=\s*(ZINC\d+)")
+        self.energy_re = re.compile("NORMALIZED FREE ENERGY PREDICTED BY IDOCK:\s+([-+]?[0-9]*\.?[0-9]+) KCAL\/MOL")\
     
     def construct_command(self):
         cmd = [
@@ -39,11 +41,10 @@ class idock:
         else:
             summary_filename = self.output_path / "summary_{}.tsv".format(timestamp)
 
-        energy_re = re.compile("NORMALIZED FREE ENERGY PREDICTED BY IDOCK:\s+([-+]?[0-9]*\.?[0-9]+) KCAL\/MOL")
         results = []
         sf = open(str(summary_filename), 'w')
         for ligand in self.ligand_path.glob("*.pdbqt"):
-            zincid = get_zincid(str(ligand))
+            zincid = self.get_zincid(str(ligand))
             if not zincid:
                 print("Couldn't find zincid")
                 continue
@@ -57,23 +58,14 @@ class idock:
                 print("Couldn't find result file")
                 continue
 
-            energy = ""
-            with open(str(result_file)) as f:
-                for line in f:
-                    m = energy_re.search(line)
-                    if m:
-                        energy = m.group(1)
-                        break
-            if energy == "":
+            energy = self.get_energy(result_file)
+            if not energy:
                 print("Couldn't find energy")
                 continue
 
             if not already_converted:
                 output_pdb = self.output_path / (ligand.stem + ".pdb")
-                if os.system("cut -c-66 {0} > {1}".format(result_file, output_pdb)):
-                    print("Couldn't convert pdb to pdbqt")
-                    continue
-                os.remove(str(result_file))
+                self.convert_to_pdb(str(result_file), str(output_pdb))
 
             sf.write("{}\t{}\t{}\n".format(ligand.name, zincid, energy))
         sf.close()
@@ -89,11 +81,22 @@ class idock:
 
         return summary_filename
 
+    def get_zincid(self, pdbqt_file):
+        with open(pdbqt_file) as f:
+            for line in f:
+                m = self.zinc_re.search(line)
+                if m:
+                    return m.group(1)
 
-zinc_re = re.compile("REMARK\s+Name\s*=\s*(ZINC\d+)")
-def get_zincid(pdbqt_file):
-    with open(pdbqt_file) as f:
-        for line in f:
-            m = zinc_re.search(line)
-            if m:
-                return m.group(1)
+    def get_energy(self, pdbqt_result_file):
+        with open(str(pdbqt_result_file)) as f:
+            for line in f:
+                m = self.energy_re.search(line)
+                if m:
+                    return m.group(1)
+    
+    def convert_to_pdb(self, in_filename, out_filename):
+        err = os.system("cut -c-66 {0} > {1}".format(in_filename, out_filename))
+        if err:
+            return err
+        return os.remove(str(in_filename))

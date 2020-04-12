@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 import yaml
 import platform
+import os
 from os import system, makedirs, chdir, path
 
 
@@ -22,8 +23,9 @@ def main():
         cmd.extend(a.split())
 
     cmd.append('--host')
+    reachable_hosts = find_reachable_hosts(cfg['hosts'], cfg['local_workspace'])
     hosts = []
-    for h in cfg['hosts']:
+    for h in reachable_hosts:
         hosts.extend([h['hostname']] * h['slots'])
     cmd.append(",".join(hosts))
 
@@ -36,6 +38,18 @@ def main():
 
     child = subprocess.Popen(cmd)
     child.wait()
+
+def find_reachable_hosts(possible_hosts, local_workspace):
+    reachable_hosts = []
+    for h in possible_hosts:
+        print("{}...".format(h['hostname']), end='', flush=True)
+        if not os.system("ssh {0} touch {1}/asdfgh.txt && ssh {0} rm {1}/asdfgh.txt".format(h['hostname'], local_workspace)):
+            print("OK")
+            reachable_hosts.append(h)
+        else:
+            print("UNREACHABLE")
+    return reachable_hosts
+
 
 if __name__ == '__main__':
     main()

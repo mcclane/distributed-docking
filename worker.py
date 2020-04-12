@@ -21,11 +21,18 @@ class Worker:
     def __init__(self, cfg):
         self.cfg = cfg
         self.rank = MPI.COMM_WORLD.Get_rank()
+        self.hostname = socket.gethostname()
     
     def create_workspace(self):
         self.parent_dir = Path(self.cfg['local_workspace']) / 'distributed-docking'
         if not self.parent_dir.exists():
-            self.parent_dir.mkdir()
+            try:
+                self.parent_dir.mkdir()
+            except FileExistsError:
+                pass
+            except PermissionError:
+                print("permission error on", self.hostname)
+                raise
         
         self.local_workspace = self.parent_dir / "worker-{}".format(self.rank)
         if self.local_workspace.exists():
@@ -44,7 +51,12 @@ class Worker:
     def retrieve_config(self):
         # copy over config folder (which has executable, config file, receptor)
         self.config_dir = self.local_workspace / "config"
-        return os.system("rsync -a {} {}".format(self.cfg['config_folder_path'], str(self.config_dir)))
+        for i in range(10):
+            if os.system("rsync -a {} {}".format(self.cfg['config_folder_path'], str(self.config_dir))):
+                time.sleep(1)
+            else:
+                return
+        raise Exception("Couldn't retrieve config on {}".format(self.hostname))
 
     def retrieve_ligands(self, ligands, path):
         ligands_file = str(self.local_workspace / "ligands.txt")
@@ -53,27 +65,37 @@ class Worker:
         return os.system("rsync -az --files-from={} {} {}".format(ligands_file, path, str(self.ligand_dir)))
     
     def main(self):
-        hostname = gethostname()
-
         self.create_workspace()
+        os.system("rm -rf {0} && mkdir {0}".format(self.ligand_dir))
+        os.system("rm -rf {0} && mkdir {0}".format(self.results_dir))
         # distributed-docking/
         #   worker-{rank}/
         #       ligands/
         #       results/
 
-        self.retrieve_config()
-
         MPI.COMM_WORLD.Barrier()
-        MPI.COMM_WORLD.send({'ready'}, dest=0)
+
+        request_work = {
+            'ready': '',
+            'ligand_dir': "{}:{}".format(self.hostname, self.ligand_dir),
+            'results_dir': "{}:{}".format(self.hostname, self.results_dir),
+            'finished_chunk': False
+        }
+        MPI.COMM_WORLD.send(request_work, dest=0)
+
+        have_config = False
 
         while True:
             received = MPI.COMM_WORLD.recv(source=0)
-            if 'ligands' in received:
-                # clear the ligands directory
-                os.system("rm -rf {0} && mkdir {0}".format(self.ligand_dir))
-
+            if 'chunk_sent' in received:
                 # print("worker {} received {} ligands".format(rank, len(received['ligands'])))
-                self.retrieve_ligands(received['ligands'], received['path'])
+                # if self.retrieve_ligands(received['ligands'], received['path']):
+                #     print("rsync error on", self.hostname)
+                #     raise Exception("Couldn't rsync received ligands on {}".format(self.hostname))
+
+                if not have_config:
+                    self.retrieve_config()
+                    have_config = True
 
                 if self.cfg['docking'] == 'idock':
                     docker = idock(self.config_dir / "idock", 
@@ -84,11 +106,17 @@ class Worker:
                                    rank=self.rank)
                     docker.run_job()
                 
-                # sync the results back to the master node
-                os.system("rsync -azv --remove-source-files --exclude=log.csv {}/ {}".format(self.results_dir, received['send_back_to']))
-                # clean up
-                os.system("rm -rf {0} && mkdir {0}".format(self.ligand_dir))
 
-                MPI.COMM_WORLD.send({'ready'}, dest=0)
+                # sync the results back to the master node
+                # for i in range(10):
+                #     if os.system("rsync -azv --remove-source-files --exclude=log.csv {}/ {}".format(self.results_dir, received['send_back_to'])):
+                #         print("Try {}/10 Couldn't rsync results from host {}")
+
+                os.system("rm -rf {0} && mkdir {0}".format(self.ligand_dir))
+                request_work['finished_chunk'] = True
+                MPI.COMM_WORLD.send(request_work, dest=0)
+                # The master will retrieve the files and put more files into the directory
+            else if 'wait_for_work' in received:
+                continue
             else:
                 break
