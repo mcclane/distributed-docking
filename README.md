@@ -27,7 +27,7 @@ The master node then begins running batches (in the order specified by `batches`
 
 For each a batch, the master node checks to see if the batch has already been downloaded and unarchived in the workspace directory. If it has not, the master downloads and unarchives the batch. The master node then finds ligands that have not yet been run (by comparing the ligands in the unarchived batch directory and ligands in the local results directory). These ligands are then distributed to available workers.
 
-When all ligands have been distributed, a summary file is created by combining all partial summary files from each individual worker and then sorting in order of increasing energy. An archive file containing the output files from the docking program and the combined summary file. These archive and summary files are then sent to the `processed` location specified in the configuration file.
+When all ligands have been distributed, a summary file is created by combining all partial summary files from each individual worker and then sorting in order of increasing energy. An archive file containing the output files from the docking program and the combined summary file is created. The archive and summary files are then sent to the `processed` location specified in the configuration file.
 
 # Options
 
