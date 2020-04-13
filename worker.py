@@ -116,6 +116,8 @@ class Worker:
                 request_work['finished_chunk'] = True
                 # The master will retrieve the files and put more files into the directory
             elif 'standby' in received:
+                MPI.COMM_WORLD.Barrier() # very important
+                request_work['finished_chunk'] = False
                 continue
             else:
                 break

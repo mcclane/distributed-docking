@@ -34,8 +34,7 @@ def main():
         cfg['python'], str(my_path / 'distributor.py'), '--cfg', args.cfg
     ])
 
-    print(" ".join(cmd))
-
+    print("Launching mpi process")
     child = subprocess.Popen(cmd)
     child.wait()
 

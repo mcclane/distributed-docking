@@ -60,10 +60,10 @@ class Master:
             print("distributing ligands")
             self.distribute_ligands(self.cfg['chunk_size'], to_run, batch)
 
-            # print("Checking again for stragglers")
-            # to_run = diff_ligands_results(self.ligand_dir / batch, self.results_dir)
-            # if len(to_run) > 0:
-            #     self.distribute_ligands(self.cfg['chunk_size'], to_run, batch)
+            print("Checking again for stragglers")
+            to_run = diff_ligands_results(self.ligand_dir / batch, self.results_dir)
+            if len(to_run) > 0:
+                self.distribute_ligands(self.cfg['chunk_size'], to_run, batch)
 
             print("Creating summary file")
             summary_filename = self.concatenate_and_sort_summary_files(batch)
@@ -111,6 +111,8 @@ class Master:
                 print("retrieving chunk from {}".format(received['results_dir']))
                 self.retrieve_chunk_from_worker(received['results_dir'])
             MPI.COMM_WORLD.send({'standby'}, dest=status.Get_source())
+
+        MPI.COMM_WORLD.Barrier() # very important
 
 
         print("done distributing")
