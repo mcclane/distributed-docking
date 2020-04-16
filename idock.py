@@ -41,7 +41,6 @@ class idock:
         else:
             summary_filename = self.output_path / "summary_{}.tsv".format(timestamp)
 
-        results = []
         sf = open(str(summary_filename), 'w')
         for ligand in self.ligand_path.glob("*.pdbqt"):
             zincid = self.get_zincid(str(ligand))

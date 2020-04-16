@@ -16,6 +16,7 @@ from subprocess import check_output
 import re
 
 from idock import idock
+from smina import Smina
 
 class Worker:
     def __init__(self, cfg):
@@ -105,12 +106,14 @@ class Worker:
                                    receptor=self.config_dir / self.cfg['receptor'],
                                    rank=self.rank)
                     docker.run_job()
-                
-
-                # sync the results back to the master node
-                # for i in range(10):
-                #     if os.system("rsync -azv --remove-source-files --exclude=log.csv {}/ {}".format(self.results_dir, received['send_back_to'])):
-                #         print("Try {}/10 Couldn't rsync results from host {}")
+                elif self.cfg['docking'] == 'smina':
+                    docker = Smina(self.config_dir / "smina.static", # TODO: executable should be configurable 
+                                   self.ligand_dir, 
+                                   config=self.config_dir / "conf.txt",
+                                   output_path=self.results_dir,
+                                   receptor=self.config_dir / self.cfg['receptor'],
+                                   rank=self.rank)
+                    docker.run_job()
 
                 os.system("rm -rf {0} && mkdir {0}".format(self.ligand_dir))
                 request_work['finished_chunk'] = True
