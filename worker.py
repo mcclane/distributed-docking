@@ -89,11 +89,6 @@ class Worker:
             MPI.COMM_WORLD.send(request_work, dest=0)
             received = MPI.COMM_WORLD.recv(source=0)
             if 'chunk_sent' in received:
-                # print("worker {} received {} ligands".format(rank, len(received['ligands'])))
-                # if self.retrieve_ligands(received['ligands'], received['path']):
-                #     print("rsync error on", self.hostname)
-                #     raise Exception("Couldn't rsync received ligands on {}".format(self.hostname))
-
                 if not have_config:
                     self.retrieve_config()
                     have_config = True

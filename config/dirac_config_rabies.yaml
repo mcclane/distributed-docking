@@ -1,0 +1,37 @@
+library: mhowland@dirac5.calpoly.edu:/nfsbigdata2/eagonlab/Ligand_Libraries/2020_Clean_Drug_Like/
+processed: mhowland@dirac5.calpoly.edu:/nfsbigdata2/eagonlab/Rabies_CDL2020_Smina/
+
+archive_prefix: Results_
+summary_prefix: Summary_
+
+#docking: idock
+# expects 'idock' executable, idock.conf, and receptor pdbqt to be in this folder
+#config_folder_path: dirac5.calpoly.edu:/nfsbigdata2/mhowland/example_config/
+
+docking: smina
+# expects 'smina.static' executable, conf.txt, and receptor pdbqt to be in this folder
+# the file in my directory has the receptor removed from the conf.txt file, but that's the only change
+config_folder_path: dirac5.calpoly.edu:/nfsbigdata2/mhowland/Input_Smina_Files/
+receptor: 6tou_DOCK.pdbqt
+
+# order matters
+batches: ['p01', 'p02', 'p03', 'p04', 'p05', 'p06', 'p07', 'p08', 'p09', 'p10', 'p11', 'p12', 'p13', 'p14', 'p15', 'p16', 'p17', 'p18', 'p19', 'p20', 'p21', 'p22', 'p23', 'p24', 'p25', 'p26', 'p27', 'p28', 'p29', 'p30', 'p31', 'p32', 'p33', 'p34', 'p35', 'p36', 'p37', 'p38', 'p39', 'p40', 'p41', 'p42', 'p43', 'p44', 'p45', 'p46', 'p47', 'p48']
+
+chunk_size: 100
+
+python: python3
+
+# specific to the dirac cluster
+mpiexec-path: /nfsopt/openmpi-1.8.4/bin/mpiexec
+
+mpi_args:
+    - --mca plm_rsh_no_tree_spawn 1
+#    - --mca btl_tcp_if_include ens6f0 # only required for the mpac lab
+    - --bind-to none # important - don't limit processes to a single core
+
+
+local_workspace: /scratch1 # maybe make this host specific in the future
+hosts:
+    -
+        hostname: 127x05.csc.calpoly.edu # The first host is always made the master.
+        slots: 3

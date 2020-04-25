@@ -12,10 +12,14 @@ class Smina:
         self.config = config
         self.receptor = receptor
         self.rank = rank
+        self.model1_re = re.compile("MODEL\s+1")
         self.zinc_re = re.compile("REMARK\s+Name\s*=\s*(ZINC\d+)")
-        self.energy_re = re.compile("REMARK\s+minimizedAffinity\s+([-+]?[0-9]*\.?[0-9]+)")\
+        self.energy_re = re.compile("REMARK\s+minimizedAffinity\s+([-+]?[0-9]*\.?[0-9]?[0-9]?[0-9])")
+        self.ter_re = re.compile("TER")
+        self.user_re = re.compile("USER")
     
     def run_file(self, path):
+        self.preprocess_file(path)
         output_file = self.output_path / path.name
         cmd = [
             str(self.executable_path),
@@ -33,31 +37,38 @@ class Smina:
             '--out', str(output_file)
         ])
 
-        output = subprocess.check_output(cmd)
-        print(path.name)
+        try:
+            output = subprocess.check_output(cmd)
 
-        zincid, energy = self.extract_zincid_energy(str(output_file))
-        self.convert_to_pdb(str(output_file), str(self.output_path / output_file.stem) + ".pdb")
+            zincid, energy = self.extract_zincid_energy(str(output_file))
+            self.convert_to_pdb(str(output_file), str(self.output_path / output_file.stem) + ".pdb")
 
-        return zincid, energy
+            return zincid, energy
+        except subprocess.CalledProcessError:
+            print("smina error running {}".format(path.name))
 
     def preprocess_file(self, filename):
-        # for f in inh*.pdbqt; do sed -i '/USER/d' $f; sed -i '/TER/d' $f; done
-        pass
+        os.system("sed -i '/USER/d' {}".format(filename))
+        os.system("sed -i '/TER/d' {}".format(filename))
 
     def extract_zincid_energy(self, filename):
+        model1 = False
         zincid = None
         energy = None
         with open(filename) as f:
             for line in f:
-                e = self.energy_re.search(line)
-                if not energy and e:
-                    energy = e.group(1)
-                elif not zincid:
+                m = self.model1_re.search(line)
+                if m:
+                    model1 = True
+                if model1 and not energy:
+                    e = self.energy_re.search(line)
+                    if e:
+                        energy = e.group(1)
+                elif model1 and not zincid:
                     z = self.zinc_re.search(line)
                     if z:
                         zincid = z.group(1)
-                else:
+                elif energy and zincid:
                     return zincid, energy
 
     def convert_to_pdb(self, in_filename, out_filename):
@@ -78,8 +89,11 @@ class Smina:
             res = self.run_file(path)
             if res:
                 zincid, energy = res
-                sf.write("{}.pdb\t{}\t{}\n".format(path.stem, zincid, energy))
+                to_write = "{}.pdb\t{}\t{}".format(path.stem, zincid, energy) 
+                print(to_write)
+                sf.write(to_write + "\n")
             else:
                 print("Couldn't run {}".format(path.name))
         sf.close()
+        print("summary {} written".format(summary_filename.name))
         return summary_filename

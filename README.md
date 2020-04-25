@@ -1,6 +1,6 @@
 # distributed-docking
 
-Runs [molecular docking](https://en.wikipedia.org/wiki/Docking_(molecular)) programs in parallel on an MPI cluster. Currently supports [idock](https://github.com/HongjianLi/idock). Smina support is coming soon. This program is currently being used on Cal Poly's Massively Parallel Accelerated Computing (MPAC) lab and [DIRAC](https://github.com/ellisonbg/dirac-cluster/wiki) cluster.
+Runs [molecular docking](https://en.wikipedia.org/wiki/Docking_(molecular)) programs in parallel on an MPI cluster. Currently supports [idock](https://github.com/HongjianLi/idock) and smina. This program is currently being used on Cal Poly's Massively Parallel Accelerated Computing (MPAC) lab and [DIRAC](https://github.com/ellisonbg/dirac-cluster/wiki) cluster.
 
 
 # Requirements
@@ -10,9 +10,34 @@ Runs [molecular docking](https://en.wikipedia.org/wiki/Docking_(molecular)) prog
 - python packages: `mpi4py PyYAML`. See `requirements.txt`
 
 
+# Installation
+
+Clone the repo into a shared folder common to all the workers (ie a drive on the NFS):
+```shell
+git clone https://github.com/mcclane/distributed-docking.git
+```
+
+```shell
+cd distributed-docking
+```
+
+Install the requirements. Whichever pip you use, just make sure it is the pip for the version of python you're using as the executable in the config file.
+```shell
+python3 -m pip install -r requirements.txt --user
+```
+or 
+```shell
+pip3 install -r requirements.txt --user
+```
+or 
+```shell
+pip install -r requirements.txt --user
+```
 # Usage
 
-`python3.4 launcher.py --cfg config.yaml`
+```shell
+python3.4 launcher.py --cfg <yaml config file>
+```
 
 
 # What exactly does it do?
@@ -53,17 +78,17 @@ p01/
 
 `summary_prefix:` Prefix of processed summary filenames.
 
-`docking:` Type of docking to run. Options are: `idock`. Smina support is in progress.
+`docking:` Type of docking to run. Options are: `idock` or `smina`.
 
 `config_folder_path:` Directory containing the docking program executable, docking program configuration file, and receptor pdbqt file. Can be a remote directory.
 
-`receptor:`: name of the receptor pdbqt file inside the directory at `config_folder_path`
+`receptor:` name of the receptor pdbqt file inside the directory at `config_folder_path`
 
 `batches:` A list of batches to be run (['p01', 'p02', ...]). Order matters.
 
 `chunk_size:` The number of ligands distributed to a worker at one time.
 
-`python:` Path to python executable
+`python:` Name or path to python executable.
 
 `mpiexec_path:` Path to `mpiexec` executable
 
@@ -73,7 +98,7 @@ mpi_args:
     - --mca plm_rsh_no_tree_spawn 1
 ```
 
-`local_workspace:` Directory used by each worker process to store data related to the run. Can be a local or shared directory.
+`local_workspace:` Directory used by each worker process to store data related to the run. Can be a local or shared directory. A local drive is usually faster than an NFS.
 
 `hosts:` A list of hosts to run workers on. Each entry in the list has a hostname and number of slots. The number of slots corresponds to the number of processes that will be launched on the machine. The first node listed will always be made the master node. This is important if you want to be able to resume runs if they are stopped for some reason. For example:
 ```
@@ -96,7 +121,7 @@ If the program gets interrupted when it is screening ligands, just restart the p
 
 If the program gets interrupted when it is creating an archive file, just restart the program.
 
-If the program gets interrupted when unarchiving a new batch from the library, you will have to remove the partially unarchived directory and restart the process. This means deleting the `<local_workspace>/distributed-docking/ligands`. If you do not remove the partially unarchive ligands directory, the next time the program runs it will use the partially unarchive directory, instead of the full batch you wanted it to run.
+If the program gets interrupted when unarchiving a new batch from the library, you will have to remove the partially unarchived directory and restart the process. This means deleting the `<local_workspace>/distributed-docking/ligands`. If you do not remove the partially unarchive ligands directory, the next time the program runs it will use the partially unarchive directory, instead of the full batch you wanted it to run. This might be changed in the future.
 
 
 ## The program hangs after launching the mpi process
