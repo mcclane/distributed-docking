@@ -127,3 +127,8 @@ If the program gets interrupted when unarchiving a new batch from the library, y
 ## The program hangs after launching the mpi process
 
 One of the hosts may not be responsive to MPI. This can happen a lot on the MPAC lab. You may have to comment out all the hosts in the configuration file and start adding them one by one, making sure the process runs with the addition of each new host.
+
+
+## The program hangs when "rsyncing ligands"
+
+If the the program hangs after printing, `rsyncing ligands to csm-dirac-2a:/scratch1/distributed-docking/worker-3/ligands`, make sure you can ssh to that host and then ctrl-c and rerun. Sometimes this happens if the hosts RSA key is not recognized.

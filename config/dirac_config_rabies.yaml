@@ -22,16 +22,30 @@ chunk_size: 100
 python: python3
 
 # specific to the dirac cluster
-mpiexec-path: /nfsopt/openmpi-1.8.4/bin/mpiexec
+mpiexec_path: /nfsopt/openmpi-1.8.4/bin/mpiexec
 
 mpi_args:
     - --mca plm_rsh_no_tree_spawn 1
 #    - --mca btl_tcp_if_include ens6f0 # only required for the mpac lab
     - --bind-to none # important - don't limit processes to a single core
+    - --map-by node
 
 
 local_workspace: /scratch1 # maybe make this host specific in the future
 hosts:
     -
-        hostname: 127x05.csc.calpoly.edu # The first host is always made the master.
+        hostname: csm-dirac-5a
+        slots: 4
+    -
+        hostname: csm-dirac-3a
         slots: 3
+    -
+        hostname: dirac1.calpoly.edu
+        slots: 3
+    -
+        hostname: csm-dirac-2a
+        slots: 3
+#    -
+#        hostname: csm-dirac-4a
+#        hostname: 192.168.193.7
+#        slots: 3

@@ -28,6 +28,7 @@ def main():
     for h in reachable_hosts:
         hosts.extend([h['hostname']] * h['slots'])
     cmd.append(",".join(hosts))
+    cmd.extend(["-n", str(len(hosts))])
 
     my_path = Path(__file__).parent.absolute()
     cmd.extend([
@@ -35,6 +36,7 @@ def main():
     ])
 
     print("Launching mpi process")
+    print(" ".join(cmd))
     child = subprocess.Popen(cmd)
     child.wait()
 
