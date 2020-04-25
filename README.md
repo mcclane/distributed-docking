@@ -39,6 +39,12 @@ pip install -r requirements.txt --user
 python3.4 launcher.py --cfg <yaml config file>
 ```
 
+example:
+```shell
+python3.4 launcher.py --cfg config/dirac_config_rabies.yaml
+```
+
+
 
 # What exactly does it do?
 
