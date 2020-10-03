@@ -48,11 +48,15 @@ class idock:
                 print("Couldn't find zincid")
                 continue
             
-            already_converted = False
             result_file = self.output_path / ligand.name
+            # No need to convert files anymore
+            """
+            already_converted = False
             if not result_file.exists():
                 result_file = self.output_path / (ligand.stem + ".pdb")
                 already_converted = True
+            """
+
             if not result_file.exists():
                 print("Couldn't find result file")
                 continue
@@ -62,9 +66,12 @@ class idock:
                 print("Couldn't find energy")
                 continue
 
+            # No need to convert files anymore
+            """
             if not already_converted:
                 output_pdb = self.output_path / (ligand.stem + ".pdb")
                 self.convert_to_pdb(str(result_file), str(output_pdb))
+            """
 
             sf.write("{}\t{}\t{}\n".format(ligand.name, zincid, energy))
         sf.close()

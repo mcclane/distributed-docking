@@ -39,10 +39,8 @@ class Smina:
 
         try:
             output = subprocess.check_output(cmd)
-
             zincid, energy = self.extract_zincid_energy(str(output_file))
-            self.convert_to_pdb(str(output_file), str(self.output_path / output_file.stem) + ".pdb")
-
+            #self.convert_to_pdb(str(output_file), str(self.output_path / output_file.stem) + ".pdb")
             return zincid, energy
         except subprocess.CalledProcessError:
             print("smina error running {}".format(path.name))
