@@ -138,3 +138,25 @@ One of the hosts may not be responsive to MPI. This can happen a lot on the MPAC
 ## The program hangs when "rsyncing ligands"
 
 If the the program hangs after printing, `rsyncing ligands to csm-dirac-2a:/scratch1/distributed-docking/worker-3/ligands`, make sure you can ssh to that host and then ctrl-c and rerun. Sometimes this happens if the hosts RSA key is not recognized.
+
+# Look at that uptime:
+```
+retrieving chunk from 127x23.csc.calpoly.edu:/vm/distributed-docking/worker-41/results
+ligand01\_120045.pdb     ZINC000062701440        -3.394
+ligand01\_40398.pdb      ZINC000218765417        -3.810
+ligand01\_38205.pdb      ZINC000001066168        -3.822
+ligand01\_81292.pdb      ZINC000534652416        -3.732
+summary summary\_w57\_09-05-2020\_15-37-55.tsv written
+retrieving chunk from 127x31.csc.calpoly.edu:/vm/distributed-docking/worker-57/results
+done distributing
+Checking again for stragglers
+Creating summary file
+Creating archive file
+storing results
+cleaning up results and ligands directories
+sending stop signals...done
+
+real    14523m26.706s
+user    103978m46.638s
+sys     13495m15.916s
+```
