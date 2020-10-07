@@ -185,8 +185,7 @@ def download_batch(batch, library_path, ligand_dir):
 def is_downloaded(batch, ligand_dir):
     ligand_re = re.compile("^(p\d\d.?[0|1]?)$")
     for f in os.listdir(str(ligand_dir)):
-        res = ligand_re.match(f)
-        if res and batch == res.group(1):
+        if batch == f:
             return True
     return False
 

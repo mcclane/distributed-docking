@@ -13,7 +13,8 @@ class Smina:
         self.receptor = receptor
         self.rank = rank
         self.model1_re = re.compile("MODEL\s+1")
-        self.zinc_re = re.compile("REMARK\s+Name\s*=\s*(ZINC\d+)")
+        self.model1_block_re = re.compile("MODEL\s+1(.*?)ATOM", re.DOTALL)
+        self.zinc_re = re.compile("REMARK\s+Name\s*=\s*(\S+)")
         self.energy_re = re.compile("REMARK\s+minimizedAffinity\s+([-+]?[0-9]*\.?[0-9]?[0-9]?[0-9])")
         self.ter_re = re.compile("TER")
         self.user_re = re.compile("USER")
@@ -44,6 +45,8 @@ class Smina:
             return zincid, energy
         except subprocess.CalledProcessError:
             print("smina error running {}".format(path.name))
+        except TypeError:
+            print("Couldn't retrieve zincid and energy from output file")
 
     def preprocess_file(self, filename):
         os.system("sed -i '/USER/d' {}".format(filename))
@@ -54,6 +57,18 @@ class Smina:
         zincid = None
         energy = None
         with open(filename) as f:
+            m = self.model1_block_re.match(f.read())
+            if m:
+                block = m.group(0)
+                e = self.energy_re.search(block)
+                if e:
+                    energy = e.group(1)
+                z = self.zinc_re.search(block)
+                if z:
+                    zincid = z.group(1)
+                return zincid, energy
+
+            """
             for line in f:
                 m = self.model1_re.search(line)
                 if m:
@@ -68,6 +83,7 @@ class Smina:
                         zincid = z.group(1)
                 elif energy and zincid:
                     return zincid, energy
+            """
 
     def convert_to_pdb(self, in_filename, out_filename):
         err = os.system("cut -c-66 {0} > {1}".format(in_filename, out_filename))
@@ -87,7 +103,7 @@ class Smina:
             res = self.run_file(path)
             if res:
                 zincid, energy = res
-                to_write = "{}.pdb\t{}\t{}".format(path.stem, zincid, energy) 
+                to_write = "{}.pdbqt\t{}\t{}".format(path.stem, zincid, energy) 
                 print(to_write)
                 sf.write(to_write + "\n")
             else:
